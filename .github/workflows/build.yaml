@@ -28,4 +28,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create vlc-$(git rev-parse --short HEAD) VLC.ipa --draft
+          gh release create vlc-$(git rev-parse --short HEAD) VLC.ipa --draft --repo $GITHUB_REPOSITORY
