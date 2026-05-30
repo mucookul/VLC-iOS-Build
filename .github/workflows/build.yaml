@@ -21,7 +21,7 @@ jobs:
       - working-directory: vlc-ios
         run: |
           mkdir Payload
-          cp -R ./DerivedData/Build/Products/Release-iphoneos/VLC-iOS.app Payload/
+          cp -R "./DerivedData/Build/Products/Release-iphoneos/VLC for iOS.app" Payload/
           zip -r VLC.ipa Payload/
 
       - working-directory: vlc-ios
