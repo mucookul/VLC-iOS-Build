@@ -1,16 +1,31 @@
-name: Build
-
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build YTLitePlus
     runs-on: macos-26
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout
-        run: git clone --depth 1 https://code.videolan.org/videolan/vlc-ios.git
+      - run: sudo xcode-select -s /Applications/Xcode_26.3.app # https://stackoverflow.com/questions/79919483/use-of-private-header-from-outside-its-module-in-a-cocoapods-dependency-in-an
+    
+      - run: git clone --depth 1 https://code.videolan.org/videolan/vlc-ios.git
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3.24
+      - working-directory: vlc-ios
+        run: pod install
+
+      - working-directory: vlc-ios
+        run: xcodebuild -workspace VLC.xcworkspace -scheme VLC-iOS-no-watch -configuration Release CODE_SIGNING_ALLOWED=NO -derivedDataPath ./DerivedData
+
+      - working-directory: vlc-ios
+        run: |
+          mkdir Payload
+          cp -R ./DerivedData/Build/Products/Release-iphoneos/VLC-iOS-no-watch.app Payload/
+          zip -r VLC.ipa Payload/
+
+      - working-directory: vlc-ios
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create vlc-$(git rev-parse --short HEAD) VLC.ipa --draft
