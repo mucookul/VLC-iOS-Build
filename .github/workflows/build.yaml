@@ -1,0 +1,16 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build YTLitePlus
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout
+        run: git clone --depth 1 https://code.videolan.org/videolan/vlc-ios.git
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3.24
