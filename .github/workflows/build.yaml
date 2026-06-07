@@ -12,22 +12,28 @@ jobs:
           curl -LO https://code.videolan.org/videolan/vlc-ios/-/archive/master/vlc-ios-master.tar.gz
           tar -xf vlc-ios-master.tar.gz
 
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ~/Library/Caches/CocoaPods
+            DerivedData
+          key: cache-${{ hashFiles('vlc-ios-master/Podfile.lock') }}
+          restore-keys: cache-
+
       - working-directory: vlc-ios-master
         run: |
           pod install
 
       - working-directory: vlc-ios-master
         run: |
-          xcodebuild -workspace VLC.xcworkspace -scheme VLC-iOS-no-watch -configuration Release -derivedDataPath ./DerivedData CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace VLC.xcworkspace -scheme VLC-iOS-no-watch -configuration Release -derivedDataPath ../DerivedData CODE_SIGNING_ALLOWED=NO
 
-      - working-directory: vlc-ios-master
-        run: |
+      - run: |
           mkdir Payload
-          cp -R ./DerivedData/Build/Products/Release-iphoneos/VLC-iOS-no-watch.app Payload/
-          zip -r VLC.ipa Payload/
+          cp -R DerivedData/Build/Products/Release-iphoneos/VLC-iOS-no-watch.app Payload
+          zip -r VLC.ipa Payload
 
-      - working-directory: vlc-ios-master
-        env:
+      - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create vlc VLC.ipa --draft --repo $GITHUB_REPOSITORY
